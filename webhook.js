@@ -6,7 +6,7 @@ const handler = createHandler({
   secret: 'truechain_xiaojian',
 });
 const { spawn } = require('child_process');
-
+//
 const runCommand = (cmd, args, callback) => {
   const child = spawn(cmd, args);
   let response = '';
