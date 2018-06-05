@@ -33,9 +33,11 @@ handler.on('push', function(event) {
     event.payload.repository.name,
     event.payload.ref);
   if (event.payload.ref === 'refs/heads/master') {
-    console.log('start run command');
+    console.log('Start run command');
     runCommand('sh', [ './auto_deploy.sh' ], txt => {
       console.log(txt);
     });
+  } else {
+    console.log('Not the master branch, will not trigger');
   }
 });
