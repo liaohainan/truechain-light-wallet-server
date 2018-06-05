@@ -32,10 +32,10 @@ handler.on('push', function(event) {
   console.log('Received a push event for %s to %s',
     event.payload.repository.name,
     event.payload.ref);
-  console.log(event.payload.repository.name, 'name');
-  console.log(event.payload.ref, 'ref');
-
-  runCommand('sh', [ './auto_deploy.sh' ], txt => {
-    console.log(txt);
-  });
+  if (event.payload.ref === 'refs/heads/master') {
+    console.log('start run command');
+    runCommand('sh', [ './auto_deploy.sh' ], txt => {
+      console.log(txt);
+    });
+  }
 });
