@@ -1,11 +1,12 @@
 'use strict';
 const http = require('http');
 const createHandler = require('github-webhook-handler');
+const { spawn } = require('child_process');
 const handler = createHandler({
   path: '/webhook',
   secret: 'truechain_xiaojian',
 });
-const { spawn } = require('child_process');
+
 
 const runCommand = (cmd, args, callback) => {
   const child = spawn(cmd, args);
@@ -15,7 +16,6 @@ const runCommand = (cmd, args, callback) => {
   });
   child.stdout.on('end', () => callback(response));
 };
-
 
 http.createServer(function(req, res) {
   handler(req, res, function(err) {
