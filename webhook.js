@@ -1,6 +1,7 @@
 'use strict';
 const http = require('http');
 const createHandler = require('coding-webhook-handler');
+// as
 const handler = createHandler({
   path: '/webhook',
   token: 'truechain_xiaojian', // 在 coding 上面可以填写一个 token
