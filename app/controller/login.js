@@ -1,4 +1,5 @@
 'use strict';
+/* eslint-disable no-debugger */
 const svgCaptcha = require('svg-captcha');
 const Controller = require('egg').Controller;
 const md5 = require('md5');
@@ -179,13 +180,14 @@ class HomeController extends Controller {
       ctx,
       app,
     } = this;
-    // debugger
+    // debugger;
     const smsCode = getAothCode();
     const smsTime = getLocalTime();
     const {
       mobile,
       captcha,
       smsType = '1',
+      countryCode,
     } = ctx.query;
     // debugger;
     if (!captcha || !mobile) {
@@ -211,10 +213,10 @@ class HomeController extends Controller {
     }
 
     // debugger;
-    // const result = await app.mysql.query('SELECT * FROM `sms_log` WHERE mobile="' + mobile + '"');
-    const result = await app.mysql.select('sms_log', {
-      where: { mobile },
-    });
+    const result = await app.mysql.query(`SELECT * FROM sms_log WHERE mobile="${mobile}"`);
+    // const result = await app.mysql.select('sms_log', {
+    //   where: { mobile },
+    // });
     const nowDate = +new Date();
     const expired = 60; // 一分钟内有效 , 并且不能重复发送请求
 
@@ -235,7 +237,7 @@ class HomeController extends Controller {
       if (smsType === '1') {
         status = await this.sendSms(smsTime, smsCode, mobile);
       } else if (smsType === '2') {
-        status = await this.sendSmsGlobal(smsTime, smsCode, mobile);
+        status = await this.sendSmsGlobal(smsTime, smsCode, countryCode === '86' ? `${countryCode + mobile}` : mobile);
       } else {
         ctx.body = {
           body: {
@@ -264,7 +266,7 @@ class HomeController extends Controller {
       if (smsType === '1') {
         status = await this.sendSms(smsTime, smsCode, mobile);
       } else if (smsType === '2') {
-        status = await this.sendSmsGlobal(smsTime, smsCode, mobile);
+        status = await this.sendSmsGlobal(smsTime, smsCode, countryCode === '86' ? `${countryCode + mobile}` : mobile);
       } else {
         ctx.body = {
           body: {

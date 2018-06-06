@@ -5,4 +5,4 @@ git clean -f
 git pull origin master
 cnpm install
 npm stop
-EGG_SERVER_ENV=test npm start
+EGG_SERVER_ENV=prod npm start

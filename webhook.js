@@ -1,11 +1,12 @@
 'use strict';
 const http = require('http');
 const createHandler = require('github-webhook-handler');
+const { spawn } = require('child_process');
 const handler = createHandler({
   path: '/webhook',
   secret: 'truechain_xiaojian',
 });
-const { spawn } = require('child_process');
+
 
 const runCommand = (cmd, args, callback) => {
   const child = spawn(cmd, args);
@@ -15,7 +16,6 @@ const runCommand = (cmd, args, callback) => {
   });
   child.stdout.on('end', () => callback(response));
 };
-
 
 http.createServer(function(req, res) {
   handler(req, res, function(err) {
@@ -32,15 +32,12 @@ handler.on('push', function(event) {
   console.log('Received a push event for %s to %s',
     event.payload.repository.name,
     event.payload.ref);
-  runCommand('sh', [ './auto_build.sh' ], txt => {
-    console.log(txt);
-  });
-});
-
-handler.on('issues', function(event) {
-  console.log('Received an issue event for %s action=%s: #%d %s',
-    event.payload.repository.name,
-    event.payload.action,
-    event.payload.issue.number,
-    event.payload.issue.title);
+  if (event.payload.ref === 'refs/heads/master') {
+    console.log('Start run command');
+    runCommand('sh', [ './auto_deploy.sh' ], txt => {
+      console.log(txt);
+    });
+  } else {
+    console.log('Not the master branch, will not trigger');
+  }
 });
