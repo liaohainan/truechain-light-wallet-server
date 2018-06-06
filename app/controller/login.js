@@ -132,7 +132,7 @@ class HomeController extends Controller {
     ctx.cookies.set('captcha', text);
     ctx.body = {
       status: 0,
-      message: '图形验证成功',
+      message: '图形验证已成功',
       data,
     };
   }
