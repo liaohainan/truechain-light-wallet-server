@@ -4,7 +4,6 @@ const svgCaptcha = require('svg-captcha');
 const Controller = require('egg').Controller;
 const md5 = require('md5');
 const jwt = require('jwt-simple');
-// const Mock    = require('mockjs')
 const {
   getAothCode,
   getLocalTime,
@@ -132,7 +131,7 @@ class HomeController extends Controller {
     ctx.cookies.set('captcha', text);
     ctx.body = {
       status: 0,
-      message: '图形验证已成功.',
+      message: '图形验证成功',
       data,
     };
   }
