@@ -31,7 +31,7 @@ class MainController extends Controller {
             WHERE
             node_type=1
             AND
-						is_eligibility=1 
+						is_eligibility=1
             ORDER BY
             (lock_num * .8 + tickets * .2)
             DESC
@@ -40,10 +40,10 @@ class MainController extends Controller {
           `;
     } else {
       sql = `
-            SELECT * from team 
+            SELECT * from team
             WHERE  node_type=${node_type}
-            AND is_eligibility=1 
-            ORDER BY tickets 
+            AND is_eligibility=1
+            ORDER BY tickets
             DESC LIMIT ${pageIndex}, ${pageNumber}
             `;
     }
@@ -78,6 +78,7 @@ class MainController extends Controller {
   async searchTeam() {
     const { ctx, app } = this;
     const { search_value } = ctx.query;
+    // debugger;
     if (!search_value) {
       ctx.body = {
         status: 202,
@@ -86,7 +87,7 @@ class MainController extends Controller {
       };
       return;
     }
-    const data = await app.mysql.query('SELECT * FROM team WHERE type=2 AND nickname LIKE \'%龙%\'');
+    const data = await app.mysql.query(`SELECT * FROM team WHERE type=2 AND nickname LIKE '%${search_value}%'`);
     ctx.body = {
       status: 0,
       message: '搜索组队',
