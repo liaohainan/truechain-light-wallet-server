@@ -77,9 +77,9 @@ class MainController extends Controller {
   }
   async searchTeam() {
     const { ctx, app } = this;
-    const { search_value, node_type } = ctx.query;
+    const { search_value = '', node_type } = ctx.query;
     // debugger;
-    if (!search_value || !node_type) {
+    if (!node_type) {
       ctx.body = {
         status: 202,
         message: '参数不全',
@@ -87,12 +87,35 @@ class MainController extends Controller {
       };
       return;
     }
-    const data = await app.mysql.query(`
+    let sql;
+
+    if (node_type === '1') {
+      sql = `
+            SELECT nickname, address, type, ((lock_num * .8 + tickets * .2) * 100) as score, create_time FROM team
+            WHERE
+            node_type='${node_type}'
+            AND nickname LIKE '%${search_value}%'
+            AND is_eligibility=1
+            ORDER BY
+            (lock_num * .8 + tickets * .2)
+            DESC
+          `;
+    } else {
+      sql = `
+            SELECT * from team
+            WHERE  node_type='${node_type}'
+            AND nickname LIKE '%${search_value}%'
+            AND is_eligibility=1
+            ORDER BY tickets
+            DESC
+            `;
+    }
+    const data = await app.mysql.query(sql);
+    /* const data = await app.mysql.query(`
       SELECT * FROM team
-      WHERE type=2
-      AND nickname LIKE '%${search_value}%'
+      WHERE nickname LIKE '%${search_value}%'
       AND node_type='${node_type}'
-      `);
+    `); */
     ctx.body = {
       status: 0,
       message: '搜索组队',
