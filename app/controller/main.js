@@ -77,9 +77,9 @@ class MainController extends Controller {
   }
   async searchTeam() {
     const { ctx, app } = this;
-    const { search_value } = ctx.query;
+    const { search_value, node_type } = ctx.query;
     // debugger;
-    if (!search_value) {
+    if (!search_value || !node_type) {
       ctx.body = {
         status: 202,
         message: '参数不全',
@@ -87,7 +87,12 @@ class MainController extends Controller {
       };
       return;
     }
-    const data = await app.mysql.query(`SELECT * FROM team WHERE type=2 AND nickname LIKE '%${search_value}%'`);
+    const data = await app.mysql.query(`
+      SELECT * FROM team
+      WHERE type=2
+      AND nickname LIKE '%${search_value}%'
+      AND node_type='${node_type}'
+      `);
     ctx.body = {
       status: 0,
       message: '搜索组队',
