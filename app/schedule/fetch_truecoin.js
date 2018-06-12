@@ -42,12 +42,13 @@ class UpdateCache extends Subscription {
     });
     /* 插入之前清空 etherscan 表 */
     await app.mysql.query('DELETE from etherscan');
-    //  debugger;
+    // debugger;
+    const options = [];
     for (let i = 0; i < txsData.length; i++) {
       const item = txsData[i];
-      await app.mysql.query(`INSERT INTO etherscan(id, my_hash, my_from, my_true) VALUES(0, '${item.my_hash}', '${item.my_from}', '${item.my_true}')`);
-
+      options.push(`('${item.my_hash}', '${item.my_from}', '${item.my_true}')`);
     }
+    await app.mysql.query(`INSERT INTO etherscan(my_hash, my_from, my_true) VALUES ${options.join(',')}`);
     // console.log('获取锁仓信息 => 1');
   }
   async updateUserLockNumber() {
@@ -66,17 +67,6 @@ class UpdateCache extends Subscription {
       where
           user.address = tmp.address;
     `);
-    // const trueNum = await app.mysql.query(`SELECT address from user`);
-    // console.log(trueNum);
-    // for (let i = 0; i < trueNum.length; i++) {
-
-    //   let sumNum         = await app.mysql.query(`SELECT sum(etherscan.my_true) FROM etherscan WHERE etherscan.my_from = '${trueNum[i].address}'`);
-
-    //   let lockNum        = sumNum[0]['sum(etherscan.my_true)'] || 0;
-    //   let updateSql      = `UPDATE user set lock_num='${lockNum}' WHERE address='${trueNum[i].address}'`;
-    //   await app.mysql.query(updateSql);
-    // }
-    // console.log('更新个人锁仓数量 => 2');
   }
   async updateIndividualTeamLockNumber() {
     await this.app.mysql.query(`
@@ -93,15 +83,15 @@ class UpdateCache extends Subscription {
     for (let i = 0; i < teamsItem.length; i++) {
       const { address } = teamsItem[i];
       const sql = `
-                    SELECT sum(user.lock_num)
+                    SELECT ifnull(sum(user.lock_num), 0) as lockNum
                     FROM team_user, user
                     WHERE team_user.user_address = user.address
                     AND team_user.team_address='${address}'
                     AND team_user.status=2
                   `;
-      const sumLock = (await app.mysql.query(sql));
+      const { lockNum } = (await app.mysql.query(sql))[0];
 
-      const lockNum = sumLock[0]['sum(user.lock_num)'] || 0;
+      // const lockNum = sumLock[0];
       const updateSql = `UPDATE team set lock_num='${lockNum}' WHERE address='${address}'`;
       await app.mysql.query(updateSql);
     }
