@@ -5,12 +5,13 @@ class UpdateCache extends Subscription {
   static get schedule() {
     return {
       type: 'all',
-      interval: '1m',
+      interval: '2m',
     };
   }
   async subscribe() {
     // const { mysql } = this.app;
     console.log('获取币数开始');
+    /* eslint-disable no-debugger */
     // debugger;
     this.ctx.runInBackground(async () => {
       await this.getTxsData();
@@ -29,7 +30,7 @@ class UpdateCache extends Subscription {
     const { ctx, app } = this;
     const { data: { result } } = await ctx.curl(app.config.lockedUrl, {
       dataType: 'json',
-      timeout: 6000,
+      timeout: 30000,
     });
 
     const txsData = result.map(x => {
@@ -54,13 +55,13 @@ class UpdateCache extends Subscription {
 
     await app.mysql.query(`
       update user,
-          (select 
+          (select
               u.address, ifnull(sum(e.my_true), 0) as sumNum
           from
               user u
           left join etherscan e ON u.address = e.my_from
-          group by u.address) tmp 
-      set 
+          group by u.address) tmp
+      set
           user.lock_num = tmp.sumNum
       where
           user.address = tmp.address;
@@ -79,8 +80,8 @@ class UpdateCache extends Subscription {
   }
   async updateIndividualTeamLockNumber() {
     await this.app.mysql.query(`
-      UPDATE team, user set team.lock_num=user.lock_num 
-      WHERE team.address=user.address 
+      UPDATE team, user set team.lock_num=user.lock_num
+      WHERE team.address=user.address
       AND team.type=1
     `);
     // console.log('更新个人组队锁仓数量 => 3');
@@ -92,9 +93,9 @@ class UpdateCache extends Subscription {
     for (let i = 0; i < teamsItem.length; i++) {
       const { address } = teamsItem[i];
       const sql = `
-                    SELECT sum(user.lock_num) 
+                    SELECT sum(user.lock_num)
                     FROM team_user, user
-                    WHERE team_user.user_address = user.address 
+                    WHERE team_user.user_address = user.address
                     AND team_user.team_address='${address}'
                     AND team_user.status=2
                   `;
