@@ -9,7 +9,7 @@ class UpdateCache extends Subscription {
   static get schedule() {
     return {
       type: 'all',
-      interval: '2m',
+      interval: '10m',
       // interval: '10s',
     };
   }
@@ -18,7 +18,7 @@ class UpdateCache extends Subscription {
     const data = await mysql.query('SELECT address FROM team WHERE is_eligibility = 1');
     console.log('投票数据开始获取');
 
-    async.mapLimit(data, 2, (item, callback) => {
+    async.mapLimit(data, 5, (item, callback) => {
       const { url, address } = this.app.config.vote;
       const web3 = new Web3(new Web3.providers.HttpProvider(url));
       const contract = new web3.eth.Contract(iterface);
@@ -35,6 +35,7 @@ class UpdateCache extends Subscription {
         const sql = `UPDATE team set tickets=${item[1]} WHERE address='${item[0]}'`;
         await mysql.query(sql);
       }
+      this.ctx.logger.info('投票更新了');
     });
   }
   // async myTotalVotes(to) {

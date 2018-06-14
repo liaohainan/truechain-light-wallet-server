@@ -5,12 +5,12 @@ class UpdateCache extends Subscription {
   static get schedule() {
     return {
       type: 'all',
-      interval: '2m',
+      interval: '10m',
     };
   }
   async subscribe() {
     // const { mysql } = this.app;
-    console.log('获取币数开始');
+    // console.log('获取币数开始');
     /* eslint-disable no-debugger */
     // debugger;
     this.ctx.runInBackground(async () => {
@@ -20,6 +20,7 @@ class UpdateCache extends Subscription {
         this.updateIndividualTeamLockNumber(),
         this.updateTeamLockNumber(),
       ]).then(x => {
+        this.ctx.logger.info('锁仓更新了');
         this.setTeamIsEligibility();
       });
     });
