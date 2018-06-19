@@ -9,7 +9,7 @@ class UpdateCache extends Subscription {
   static get schedule() {
     return {
       type: 'all',
-      interval: '10m',
+      interval: '5m',
       // interval: '10s',
     };
   }
@@ -18,7 +18,9 @@ class UpdateCache extends Subscription {
     // debugger;
     const { mysql } = this.app;
     this.ctx.logger.info('投票数据开始获取');
+    // let index = 0;
     const data = await mysql.query("SELECT address FROM team WHERE is_eligibility='1'");
+    // console.log(data.length, 'data.length');
     async.mapLimit(data, 5, (item, callback) => {
       const { url, address } = this.app.config.vote;
       const web3 = new Web3(new Web3.providers.HttpProvider(url));
@@ -26,14 +28,17 @@ class UpdateCache extends Subscription {
       contract.options.address = address;
       contract.methods.totalVotes(item.address).call().then(res => {
         const number = web3.utils.fromWei(`${res}`, 'ether');
+        // this.ctx.logger.info(++index);
         callback(null, [ item.address, number ]);
       });
     }, async (err, result) => {
       if (err) throw err;
+      // console.log('0x1b1367a8b903216624e8694695134df3ff5f43e5');
+      // console.log(JSON.stringify(result, null, 2));
       // console.log('投票数据以获取');
       for (let i = 0; i < result.length; i++) {
         const item = result[i];
-        const sql = `UPDATE team set tickets=${item[1]} WHERE address='${item[0]}'`;
+        const sql = `UPDATE team set tickets='${item[1]}' WHERE address='${item[0]}'`;
         await mysql.query(sql);
       }
       this.ctx.logger.info('投票更新了');
