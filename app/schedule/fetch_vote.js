@@ -9,7 +9,7 @@ class UpdateCache extends Subscription {
   static get schedule() {
     return {
       type: 'all',
-      interval: '5m',
+      interval: '10m',
       // interval: '10s',
     };
   }
@@ -17,19 +17,19 @@ class UpdateCache extends Subscription {
     /* eslint-disable no-debugger */
     // debugger;
     const { mysql } = this.app;
-    let index = 0;
+    // let index = 0;
     const data = await mysql.query("SELECT address FROM team WHERE is_eligibility='1'");
     this.ctx.logger.info('投票数据开始获取');
-    this.ctx.logger.info(data.length, '达标team的长度');
+    // this.ctx.logger.info(data.length, '达标team的长度');
     // console.log(data.length, 'data.length');
-    async.mapLimit(data, 5, (item, callback) => {
+    async.mapLimit(data, 2, (item, callback) => {
       const { url, address } = this.app.config.vote;
       const web3 = new Web3(new Web3.providers.HttpProvider(url));
       const contract = new web3.eth.Contract(iterface);
       contract.options.address = address;
       contract.methods.totalVotes(item.address).call().then(res => {
         const number = web3.utils.fromWei(`${res}`, 'ether');
-        this.ctx.logger.info(++index);
+        // this.ctx.logger.info(++index);
         callback(null, [ item.address, number ]);
       });
     }, async (err, result) => {
