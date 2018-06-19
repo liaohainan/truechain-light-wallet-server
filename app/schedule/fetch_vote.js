@@ -17,9 +17,10 @@ class UpdateCache extends Subscription {
     /* eslint-disable no-debugger */
     // debugger;
     const { mysql } = this.app;
-    this.ctx.logger.info('投票数据开始获取');
-    // let index = 0;
+    let index = 0;
     const data = await mysql.query("SELECT address FROM team WHERE is_eligibility='1'");
+    this.ctx.logger.info('投票数据开始获取');
+    this.ctx.logger.info(data.length, '达标team的长度');
     // console.log(data.length, 'data.length');
     async.mapLimit(data, 5, (item, callback) => {
       const { url, address } = this.app.config.vote;
@@ -28,14 +29,14 @@ class UpdateCache extends Subscription {
       contract.options.address = address;
       contract.methods.totalVotes(item.address).call().then(res => {
         const number = web3.utils.fromWei(`${res}`, 'ether');
-        // this.ctx.logger.info(++index);
+        this.ctx.logger.info(++index);
         callback(null, [ item.address, number ]);
       });
     }, async (err, result) => {
       if (err) throw err;
       // console.log('0x1b1367a8b903216624e8694695134df3ff5f43e5');
       // console.log(JSON.stringify(result, null, 2));
-      // console.log('投票数据以获取');
+      this.ctx.logger.info('投票数据以获取');
       for (let i = 0; i < result.length; i++) {
         const item = result[i];
         const sql = `UPDATE team set tickets='${item[1]}' WHERE address='${item[0]}'`;
