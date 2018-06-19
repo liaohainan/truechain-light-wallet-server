@@ -14,9 +14,11 @@ class UpdateCache extends Subscription {
     };
   }
   async subscribe() {
+    /* eslint-disable no-debugger */
+    // debugger;
     const { mysql } = this.app;
-    const data = await mysql.query('SELECT address FROM team WHERE is_eligibility = 1');
     this.ctx.logger.info('投票数据开始获取');
+    const data = await mysql.query("SELECT address FROM team WHERE is_eligibility='1'");
     async.mapLimit(data, 5, (item, callback) => {
       const { url, address } = this.app.config.vote;
       const web3 = new Web3(new Web3.providers.HttpProvider(url));
@@ -37,13 +39,6 @@ class UpdateCache extends Subscription {
       this.ctx.logger.info('投票更新了');
     });
   }
-  // async myTotalVotes(to) {
-  //   const { url, address }   = this.app.config.vote;
-  //   const web3               = new Web3(new Web3.providers.HttpProvider(url));
-  //   const contract           = new web3.eth.Contract(iterface);
-  //   contract.options.address = address;
-  //   return contract.methods.totalVotes(to).call();
-  // }
 }
 
 module.exports = UpdateCache;
