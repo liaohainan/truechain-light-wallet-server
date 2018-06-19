@@ -16,8 +16,7 @@ class UpdateCache extends Subscription {
   async subscribe() {
     const { mysql } = this.app;
     const data = await mysql.query('SELECT address FROM team WHERE is_eligibility = 1');
-    console.log('投票数据开始获取');
-
+    this.ctx.logger.info('投票数据开始获取');
     async.mapLimit(data, 5, (item, callback) => {
       const { url, address } = this.app.config.vote;
       const web3 = new Web3(new Web3.providers.HttpProvider(url));
