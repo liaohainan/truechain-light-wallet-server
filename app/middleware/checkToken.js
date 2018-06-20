@@ -5,7 +5,7 @@ module.exports = (options, app) => {
     // eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJtb2JpbGUiOiIxNTEwMTY2MTM4MCJ9._3CmtTeZoqmoO3o7InXpPoO3t0f9ccXGPURQJLvUPU8
     // eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhZGRyZXNzIjoiMHgzNDQ5ZWQzMDFlOGUyNzJmMmQzNzc0YzRiNjZhYTIzMDBmYmE5NmM4IiwibW9iaWxlIjoiMTc2MTEyMjM2NjUifQ.wfLydygUL2HcOctfRCTOfIwuJHZc5QEC0HHSm9WR-NE
     // debugger;
-    const exemptPath = [ '/login', '/', '/smsCaptcha', '/test', '/getTTRaddress', '/takeData', '/checkVersion' ];
+    const exemptPath = [ '/login', '/', '/smsCaptcha', '/test', '/getTTRaddress', '/takeData', '/checkVersion', '/getTotalAddress', '/getTotalLockAddress', '/test1' ];
     if (!exemptPath.includes(ctx.URL.pathname)) {
       if (!ctx.request.header.token) {
         ctx.body = {

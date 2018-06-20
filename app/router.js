@@ -27,7 +27,10 @@ module.exports = app => {
   router.get('/vote', controller.main.vote);
   router.get('/checkVersion', controller.main.checkVersion);
   router.get('/test', controller.home.test);
+  router.get('/test1', controller.home.test1);
+  router.get('/getTotalAddress', controller.home.getTotalAddress);
   router.get('/getTTRaddress', controller.home.getTTRaddress);
+  router.get('/getTotalLockAddress', controller.home.getTotalLockAddress);
   router.get('/nodeSum', controller.pc.nodeSum);
   router.get('/nodeRankPc', controller.pc.nodeRankPc);
   router.get('/nodeTypeSumNum', controller.pc.nodeTypeSumNum);
