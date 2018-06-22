@@ -23,9 +23,17 @@ module.exports = (options, app) => {
         };
         return;
       }
-
-      const encode = jwt.decode(ctx.request.header.token, app.config.secret);
-      ctx.encode = encode;
+      try {
+        const encode = jwt.decode(ctx.request.header.token, app.config.secret);
+        ctx.encode = encode;
+      } catch (error) {
+        ctx.body = {
+          status: 422,
+          message: 'token错误',
+          data: null,
+        };
+        return;
+      }
     }
     await next();
   };
