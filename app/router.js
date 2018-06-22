@@ -31,7 +31,8 @@ module.exports = app => {
   router.get('/getTotalAddress', controller.home.getTotalAddress);
   router.get('/getTTRaddress', controller.home.getTTRaddress);
   router.get('/getTotalLockAddress', controller.home.getTotalLockAddress);
-  router.get('/nodeSum', controller.pc.nodeSum);
-  router.get('/nodeRankPc', controller.pc.nodeRankPc);
-  router.get('/nodeTypeSumNum', controller.pc.nodeTypeSumNum);
+
+  router.get('/api/nodeSum', controller.pc.nodeSum);
+  router.get('/api/nodeRankPc', controller.pc.nodeRankPc);
+  router.get('/api/nodeTypeSumNum', controller.pc.nodeTypeSumNum);
 };
