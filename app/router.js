@@ -26,12 +26,14 @@ module.exports = app => {
   router.get('/takeData', controller.main.takeData);
   router.get('/vote', controller.main.vote);
   router.get('/checkVersion', controller.main.checkVersion);
+
   router.get('/test', controller.home.test);
   router.get('/test1', controller.home.test1);
   router.get('/getTotalAddress', controller.home.getTotalAddress);
   router.get('/getTTRaddress', controller.home.getTTRaddress);
   router.get('/getTotalLockAddress', controller.home.getTotalLockAddress);
 
+  router.get('/api/nodeRank', controller.main.nodeRank);
   router.get('/api/nodeSum', controller.pc.nodeSum);
   router.get('/api/nodeRankPc', controller.pc.nodeRankPc);
   router.get('/api/nodeTypeSumNum', controller.pc.nodeTypeSumNum);

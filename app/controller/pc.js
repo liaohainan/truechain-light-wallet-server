@@ -26,7 +26,7 @@ class PcController extends Controller {
       return;
     }
     const result = await this.app.mysql.query(`
-      SELECT count(*) as sumNum FROM team 
+      SELECT count(*) as sumNum FROM team
       WHERE
       team.type=${type}
       AND
@@ -57,11 +57,11 @@ class PcController extends Controller {
       SELECT count(*) + (
         SELECT count(*)  from (
         SELECT address FROM team
-        WHERE 
+        WHERE
         team.type=${type1}
         AND
         team.node_type=${type2}
-        ) aaa 
+        ) aaa
         LEFT JOIN team_user as tu
         ON tu.team_address = aaa.address
       ) as sumNum FROM team
