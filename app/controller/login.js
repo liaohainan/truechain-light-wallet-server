@@ -266,7 +266,7 @@ class HomeController extends Controller {
       if (smsType === '1') {
         status = await this.sendSms(smsTime, smsCode, mobile);
       } else if (smsType === '2') {
-        status = await this.sendSmsGlobal(smsTime, smsCode, countryCode === '86' ? `${countryCode + mobile}` : mobile);
+        status = await this.sendSmsGlobal(smsTime, smsCode, countryCode + mobile);
       } else {
         ctx.body = {
           body: {
