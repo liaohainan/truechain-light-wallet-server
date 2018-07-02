@@ -9,19 +9,20 @@ class UpdateCache extends Subscription {
   static get schedule() {
     return {
       type: 'all',
-      interval: '10m',
-      // interval: '10s',
+      interval: '2m',
     };
   }
   async subscribe() {
     /* eslint-disable no-debugger */
     // debugger;
     const { mysql } = this.app;
+    if (this.app.vote) {
+      return;
+    }
+    this.app.vote = true;
     // let index = 0;
     const data = await mysql.query("SELECT address FROM team WHERE is_eligibility='1'");
     this.ctx.logger.info('投票数据开始获取');
-    // this.ctx.logger.info(data.length, '达标team的长度');
-    // console.log(data.length, 'data.length');
     async.mapLimit(data, 2, (item, callback) => {
       const { url, address } = this.app.config.vote;
       const web3 = new Web3(new Web3.providers.HttpProvider(url));
@@ -34,15 +35,13 @@ class UpdateCache extends Subscription {
       });
     }, async (err, result) => {
       if (err) throw err;
-      // console.log('0x1b1367a8b903216624e8694695134df3ff5f43e5');
-      // console.log(JSON.stringify(result, null, 2));
-      this.ctx.logger.info('投票数据以获取');
       for (let i = 0; i < result.length; i++) {
         const item = result[i];
         const sql = `UPDATE team set tickets='${item[1]}' WHERE address='${item[0]}'`;
         await mysql.query(sql);
       }
-      this.ctx.logger.info('投票更新了');
+      this.ctx.logger.info('投票vote初始化');
+      this.app.vote = false;
     });
   }
 }

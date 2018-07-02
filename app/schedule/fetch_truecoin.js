@@ -5,23 +5,26 @@ class UpdateCache extends Subscription {
   static get schedule() {
     return {
       type: 'all',
-      interval: '10m',
+      interval: '2m',
     };
   }
   async subscribe() {
-    // const { mysql } = this.app;
-    // console.log('获取币数开始');
     /* eslint-disable no-debugger */
-    // debugger;
+    if (this.app.truecoin) {
+      return;
+    }
+    this.app.truecoin = true;
     this.ctx.runInBackground(async () => {
       await this.getTxsData();
       await this.updateUserLockNumber();
       Promise.all([
         this.updateIndividualTeamLockNumber(),
         this.updateTeamLockNumber(),
-      ]).then(x => {
+      ]).then(() => {
         this.ctx.logger.info('锁仓更新了');
         this.setTeamIsEligibility();
+        this.app.truecoin = false;
+        // console.log(`初始化${this.app.truecoin} 啦啦啦`);
       });
     });
 
@@ -31,7 +34,7 @@ class UpdateCache extends Subscription {
     const { ctx, app } = this;
     const { data: { result } } = await ctx.curl(app.config.lockedUrl, {
       dataType: 'json',
-      timeout: 30000,
+      timeout: 50000,
     });
 
     const txsData = result.map(x => {
@@ -91,8 +94,6 @@ class UpdateCache extends Subscription {
                     AND team_user.status=2
                   `;
       const { lockNum } = (await app.mysql.query(sql))[0];
-
-      // const lockNum = sumLock[0];
       const updateSql = `UPDATE team set lock_num='${lockNum}' WHERE address='${address}'`;
       await app.mysql.query(updateSql);
     }
