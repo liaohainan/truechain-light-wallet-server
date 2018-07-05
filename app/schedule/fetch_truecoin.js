@@ -5,7 +5,7 @@ class UpdateCache extends Subscription {
   static get schedule() {
     return {
       type: 'all',
-      interval: '10s',
+      interval: '2m',
     };
   }
   async subscribe() {
