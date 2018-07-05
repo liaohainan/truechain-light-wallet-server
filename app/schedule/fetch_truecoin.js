@@ -13,7 +13,6 @@ class UpdateCache extends Subscription {
     if (this.app.truecoin) {
       return;
     }
-    console.log('=====');
 
     this.app.truecoin = true;
     this.ctx.runInBackground(async () => {
