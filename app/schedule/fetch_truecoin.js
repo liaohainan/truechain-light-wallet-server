@@ -5,7 +5,7 @@ class UpdateCache extends Subscription {
   static get schedule() {
     return {
       type: 'all',
-      interval: '2m',
+      interval: '10s',
     };
   }
   async subscribe() {
@@ -13,6 +13,8 @@ class UpdateCache extends Subscription {
     if (this.app.truecoin) {
       return;
     }
+    console.log('=====');
+
     this.app.truecoin = true;
     this.ctx.runInBackground(async () => {
       await this.getTxsData();
@@ -46,13 +48,18 @@ class UpdateCache extends Subscription {
     });
     /* 插入之前清空 etherscan 表 */
     await app.mysql.query('DELETE from etherscan');
-    // debugger;
-    const options = [];
+    // const options = [];
     for (let i = 0; i < txsData.length; i++) {
       const item = txsData[i];
-      options.push(`('${item.my_hash}', '${item.my_from}', '${item.my_true}')`);
+      // options.push(`('${item.my_hash}', '${item.my_from}', '${item.my_true}')`);
+      try {
+        // app.mysql.query(`INSERT INTO etherscan(my_hash, my_from, my_true) VALUES ${options.join(',')}`);
+        const asql = `INSERT INTO etherscan(my_hash, my_from, my_true) VALUES ('${item.my_hash}', '${item.my_from}', '${item.my_true}')`;
+        app.mysql.query(asql);
+      } catch (error) {
+        this.ctx.logger.info(`可能是${item.my_from} 地址重复了, ${error}`);
+      }
     }
-    await app.mysql.query(`INSERT INTO etherscan(my_hash, my_from, my_true) VALUES ${options.join(',')}`);
     // console.log('获取锁仓信息 => 1');
   }
   async updateUserLockNumber() {
