@@ -15,7 +15,7 @@ class UpdateCache extends Subscription {
     }
 
     this.app.truecoin = true;
-    this.ctx.runInBackground(async () => {
+    try {
       await this.getTxsData();
       await this.updateUserLockNumber();
       Promise.all([
@@ -25,11 +25,10 @@ class UpdateCache extends Subscription {
         this.ctx.logger.info('锁仓更新了');
         this.setTeamIsEligibility();
         this.app.truecoin = false;
-        // console.log(`初始化${this.app.truecoin} 啦啦啦`);
       });
-    });
-
-
+    } catch (error) {
+      throw error;
+    }
   }
   async getTxsData() {
     const { ctx, app } = this;
