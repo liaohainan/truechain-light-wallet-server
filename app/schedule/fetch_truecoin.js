@@ -13,7 +13,6 @@ class UpdateCache extends Subscription {
     if (this.app.truecoin) {
       return;
     }
-
     this.app.truecoin = true;
     try {
       await this.getTxsData();
@@ -69,19 +68,24 @@ class UpdateCache extends Subscription {
               u.address, ifnull(sum(e.my_true), 0) as sumNum
           from
               user u
-          left join etherscan e ON u.address = e.my_from
+          left join etherscan e
+          ON u.address = e.my_from
           group by u.address) tmp
       set
           user.lock_num = tmp.sumNum
       where
-          user.address = tmp.address;
+          user.address = tmp.address
+      AND
+          user.is_fake=0;
     `);
+
   }
   async updateIndividualTeamLockNumber() {
     await this.app.mysql.query(`
       UPDATE team, user set team.lock_num=user.lock_num
       WHERE team.address=user.address
       AND team.type=1
+      AND team.is_fake=0
     `);
     // console.log('更新个人组队锁仓数量 => 3');
   }
