@@ -58,13 +58,13 @@ class PcController extends Controller {
     const result = await this.app.mysql.query(`
       SELECT count(*) + (
         SELECT count(*)  from (
-        SELECT address FROM team
-        WHERE
-        team.type=${type1}
-        AND
-        team.node_type=${type2}
-        AND
-        is_eligibility=1
+          SELECT address FROM team
+            WHERE
+            team.type=${type1}
+            AND
+            team.node_type=${type2}
+            AND
+            is_eligibility=1
         ) aaa
         LEFT JOIN team_user as tu
         ON tu.team_address = aaa.address
@@ -73,6 +73,8 @@ class PcController extends Controller {
       type=${type3}
       AND
       node_type=${type4}
+      AND
+      is_eligibility=1
     `);
     ctx.body = {
       status: 0,
