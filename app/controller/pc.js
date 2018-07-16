@@ -31,6 +31,8 @@ class PcController extends Controller {
       team.type=${type}
       AND
       team.node_type=${node_type}
+      AND
+      is_eligibility=1
     `);
     ctx.body = {
       status: 0,
@@ -61,6 +63,8 @@ class PcController extends Controller {
         team.type=${type1}
         AND
         team.node_type=${type2}
+        AND
+        is_eligibility=1
         ) aaa
         LEFT JOIN team_user as tu
         ON tu.team_address = aaa.address
