@@ -8,7 +8,7 @@ const getAothCode = (n = 6) => {
 };
 
 const getRandomStrArr = (n = 1000) => {
-  return new Array(1000).fill(0).map(x => Math.random().toString(36).substr(2));
+  return new Array(n).fill(0).map(x => Math.random().toString(36).substr(2));
 };
 
 const getLocalTime = () => {
