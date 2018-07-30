@@ -34,7 +34,7 @@ class MainController extends Controller {
 						is_eligibility=1
             ORDER BY
               (lock_num * .8 + tickets * .2)
-            DESC , create_time DESC
+            DESC , create_time ASC
             LIMIT
             ${pageIndex}, ${pageNumber}
           `;
@@ -44,7 +44,7 @@ class MainController extends Controller {
             WHERE  node_type=${node_type}
             AND is_eligibility=1
             ORDER BY tickets
-            DESC , create_time DESC
+            DESC , create_time ASC
             LIMIT ${pageIndex}, ${pageNumber}
             `;
     }
