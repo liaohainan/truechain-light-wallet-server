@@ -33,8 +33,8 @@ class MainController extends Controller {
             AND
 						is_eligibility=1
             ORDER BY
-            (lock_num * .8 + tickets * .2)
-            DESC
+              (lock_num * .8 + tickets * .2)
+            DESC , create_time DESC
             LIMIT
             ${pageIndex}, ${pageNumber}
           `;
@@ -44,7 +44,8 @@ class MainController extends Controller {
             WHERE  node_type=${node_type}
             AND is_eligibility=1
             ORDER BY tickets
-            DESC LIMIT ${pageIndex}, ${pageNumber}
+            DESC , create_time DESC
+            LIMIT ${pageIndex}, ${pageNumber}
             `;
     }
     // const sql = `SELECT * from team WHERE  node_type=${node_type} AND is_eligibility=1 ORDER BY tickets DESC`;
