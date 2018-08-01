@@ -1,6 +1,7 @@
 'use strict';
 const Subscription = require('egg').Subscription;
 const Web3 = require('web3');
+/* eslint-disable no-debugger */
 class UpdateCache extends Subscription {
   static get schedule() {
     return {
@@ -9,7 +10,6 @@ class UpdateCache extends Subscription {
     };
   }
   async subscribe() {
-    /* eslint-disable no-debugger */
     if (this.app.truecoin) {
       return;
     }
@@ -36,44 +36,54 @@ class UpdateCache extends Subscription {
   }
   async getTxsData() {
     const { ctx, app } = this;
-    // debugger;
-    const { data: { result } } = await ctx.curl(app.config.lockedUrl, {
+    const { last_block } = (await app.mysql.query('SELECT IFNULL(max(block_num),0) AS last_block FROM etherscan'))[0];
+    const requesUrl = `${app.config.lockedUrl}&startblock=${last_block}&endblock=999999999`;
+    const { data: { result } } = await ctx.curl(requesUrl, {
       dataType: 'json',
       timeout: 100000,
     });
-    const resultSum = await app.mysql.query('SELECT count(*) as sumLength FROM etherscan');
-    if (resultSum[0].sumLength === result.length) {
+    if (result.length === 1) {
       this.ctx.logger.info('NOT CHANGED, NOT UPDATE');
       return true;
     }
+    /* @AAA
+      const resultSum = await app.mysql.query('SELECT count(*) as sumLength FROM etherscan');
+      if (resultSum[0].sumLength === result.length) {
+        this.ctx.logger.info('NOT CHANGED, NOT UPDATE');
+        return true;
+      }
+     */
 
     const txsData = result.map(x => {
       return {
         my_hash: x.hash,
         my_from: x.from,
         my_true: new Web3().utils.fromWei(x.value, 'ether'),
+        block_num: x.blockNumber,
       };
     });
-    // debugger;
-    /* 插入之前清空 etherscan 表 */
-    await app.mysql.query('TRUNCATE TABLE etherscan');
-    // const options = [];
+
+    /* @AAA
+      插入之前清空 etherscan 表
+      await app.mysql.query('TRUNCATE TABLE etherscan');
+    */
+    // @BBB const options = [];
     for (let i = 0; i < txsData.length; i++) {
       const item = txsData[i];
-      // options.push(`('${item.my_hash}', '${item.my_from}', '${item.my_true}')`);
+      // @BBB options.push(`('${item.my_hash}', '${item.my_from}', '${item.my_true}')`);
       try {
-        // app.mysql.query(`INSERT INTO etherscan(my_hash, my_from, my_true) VALUES ${options.join(',')}`);
-        const asql = `INSERT INTO etherscan(my_hash, my_from, my_true) VALUES ('${item.my_hash}', '${item.my_from}', '${item.my_true}')`;
-        app.mysql.query(asql);
+        // @BBB app.mysql.query(`INSERT INTO etherscan(my_hash, my_from, my_true) VALUES ${options.join(',')}`);
+        const sql = `INSERT INTO etherscan(my_hash, my_from, my_true, block_num) VALUES ('${item.my_hash}', '${item.my_from}', '${item.my_true}', '${item.block_num}')`;
+        app.mysql.query(sql);
       } catch (error) {
         this.ctx.logger.info(`可能是${item.my_from} 地址重复了, ${error}`);
       }
     }
-    // console.log('获取锁仓信息 => 1');
+    // @ABC console.log('获取锁仓信息 => 1');
   }
   async updateUserLockNumber() {
     const { app } = this;
-
+    // @ABC console.log('更新个人锁仓数量 => 2');
     await app.mysql.query(`
       update user,
           (select
@@ -99,7 +109,7 @@ class UpdateCache extends Subscription {
       AND team.type='1'
       AND team.is_fake='0'
     `);
-    // console.log('更新个人组队锁仓数量 => 3');
+    // @ABC console.log('更新个人组队锁仓数量 => 3');
   }
   async updateTeamLockNumber() {
     const { app } = this;
@@ -118,7 +128,7 @@ class UpdateCache extends Subscription {
       const updateSql = `UPDATE team set lock_num='${lockNum}' WHERE address='${address}'`;
       await app.mysql.query(updateSql);
     }
-    // console.log('更新组队锁仓数量 => 4');
+    // @ABC console.log('更新组队锁仓数量 => 4');
   }
   async setTeamIsEligibility() {
     const { app } = this;
@@ -142,7 +152,7 @@ class UpdateCache extends Subscription {
       }
       await app.mysql.query(`UPDATE team set is_eligibility='${is_eli}' WHERE address='${address}'`);
     }
-    // console.log('已设置是否达标 => 5');
+    // @ABC console.log('已设置是否达标 => 5');
   }
 }
 
