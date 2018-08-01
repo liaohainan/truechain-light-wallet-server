@@ -15,26 +15,37 @@ class UpdateCache extends Subscription {
     }
     this.app.truecoin = true;
     try {
-      await this.getTxsData();
+      const isChange = await this.getTxsData();
+      if (isChange) {
+        this.app.truecoin = false;
+        return;
+      }
       await this.updateUserLockNumber();
       Promise.all([
         this.updateIndividualTeamLockNumber(),
         this.updateTeamLockNumber(),
       ]).then(() => {
-        this.ctx.logger.info('锁仓更新了');
+        this.ctx.logger.info('TRUECOIN UPDATED SUCCESS!');
         this.setTeamIsEligibility();
         this.app.truecoin = false;
       });
-    } catch (error) {
-      throw error;
+    } catch (err) {
+      this.app.truecoin = false;
+      this.logger.error('===REQUEST TIMEOUT, RESTART===');
     }
   }
   async getTxsData() {
     const { ctx, app } = this;
+    // debugger;
     const { data: { result } } = await ctx.curl(app.config.lockedUrl, {
       dataType: 'json',
-      timeout: 50000,
+      timeout: 100000,
     });
+    const resultSum = await app.mysql.query('SELECT count(*) as sumLength FROM etherscan');
+    if (resultSum[0].sumLength === result.length) {
+      this.ctx.logger.info('NOT CHANGED, NOT UPDATE');
+      return true;
+    }
 
     const txsData = result.map(x => {
       return {
@@ -43,8 +54,9 @@ class UpdateCache extends Subscription {
         my_true: new Web3().utils.fromWei(x.value, 'ether'),
       };
     });
+    // debugger;
     /* 插入之前清空 etherscan 表 */
-    await app.mysql.query('DELETE from etherscan');
+    await app.mysql.query('TRUNCATE TABLE etherscan');
     // const options = [];
     for (let i = 0; i < txsData.length; i++) {
       const item = txsData[i];
@@ -84,15 +96,15 @@ class UpdateCache extends Subscription {
     await this.app.mysql.query(`
       UPDATE team, user set team.lock_num=user.lock_num
       WHERE team.address=user.address
-      AND team.type=1
-      AND team.is_fake=0
+      AND team.type='1'
+      AND team.is_fake='0'
     `);
     // console.log('更新个人组队锁仓数量 => 3');
   }
   async updateTeamLockNumber() {
     const { app } = this;
     // debugger;
-    const teamsItem = await app.mysql.query('SELECT * from team WHERE type=2');
+    const teamsItem = await app.mysql.query("SELECT * from team WHERE type='2'");
     for (let i = 0; i < teamsItem.length; i++) {
       const { address } = teamsItem[i];
       const sql = `
@@ -128,7 +140,7 @@ class UpdateCache extends Subscription {
         // console.log('组队全节点达标');
         is_eli = 1;
       }
-      await app.mysql.query(`UPDATE team set is_eligibility=${is_eli} WHERE address='${address}'`);
+      await app.mysql.query(`UPDATE team set is_eligibility='${is_eli}' WHERE address='${address}'`);
     }
     // console.log('已设置是否达标 => 5');
   }
