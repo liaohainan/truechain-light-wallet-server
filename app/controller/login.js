@@ -37,7 +37,7 @@ class HomeController extends Controller {
     // debugger;
     if (result.length) {
       if (result[0].code === code) {
-        const isBeing = await app.mysql.query(`SELECT * FROM user WHERE mobile = ${mobile} OR address='${address}'`);
+        const isBeing = await app.mysql.query(`SELECT * FROM user WHERE mobile='${mobile}' OR address='${address}'`);
         // const isBeing = await app.mysql.select('user', {
         //   where: { mobile }
         // });
@@ -213,7 +213,7 @@ class HomeController extends Controller {
     }
 
     // debugger;
-    const result = await app.mysql.query(`SELECT * FROM sms_log WHERE mobile="${mobile}"`);
+    const result = await app.mysql.query(`SELECT * FROM sms_log WHERE mobile='${mobile}'`);
     // const result = await app.mysql.select('sms_log', {
     //   where: { mobile },
     // });

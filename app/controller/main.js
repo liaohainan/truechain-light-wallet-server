@@ -69,7 +69,7 @@ class MainController extends Controller {
       };
       return;
     }
-    const data = await app.mysql.query(`SELECT * from team WHERE type=2 AND node_type=${node_type} ORDER BY tickets DESC LIMIT 20`);
+    const data = await app.mysql.query(`SELECT * from team WHERE type=2 AND node_type='${node_type}' ORDER BY tickets DESC LIMIT 20`);
     ctx.body = {
       status: 0,
       message: '组队排行',
@@ -224,7 +224,7 @@ class MainController extends Controller {
     }
 
     /* 插入队伍信息 */
-    await app.mysql.query(`INSERT INTO team (nickname, declaration,  node_type, type, address, create_time) VALUES('${nickname}', '${declaration}',${node_type},${type}, '${address}', '${+new Date()}')`);
+    await app.mysql.query(`INSERT INTO team (nickname, declaration,  node_type, type, address, create_time) VALUES('${nickname}', '${declaration}', '${node_type}', '${type}', '${address}', '${+new Date()}')`);
 
     /* 关联队伍信息 */
     const insertSql = `INSERT INTO team_user (team_address, user_address, role,status) VALUES('${address}', '${address}' , 2, 2)`;
@@ -304,7 +304,7 @@ class MainController extends Controller {
     const arrAddress = user_address.split(',');
     const _adressReturn = [];
     for (let i = 0; i < arrAddress.length; i++) {
-      const _data = await app.mysql.query(`UPDATE team_user set status=${status} WHERE team_address='${address}' AND user_address='${arrAddress[i]}'`);
+      const _data = await app.mysql.query(`UPDATE team_user set status='${status}' WHERE team_address='${address}' AND user_address='${arrAddress[i]}'`);
       _adressReturn.push(_data);
     }
     // const data = await app.mysql.query(`UPDATE team_user set status=${status} WHERE team_address='${address}' AND user_address='${user_address}'`)
@@ -363,7 +363,7 @@ class MainController extends Controller {
       };
       return;
     }
-    const data = await app.mysql.query(`UPDATE team set tickets=${vote_num} WHERE address='${team_address}'`);
+    const data = await app.mysql.query(`UPDATE team set tickets='${vote_num}' WHERE address='${team_address}'`);
     ctx.body = {
       status: 0,
       message: '投票',
